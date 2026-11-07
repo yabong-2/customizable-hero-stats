@@ -1,0 +1,25 @@
+name: Build DLL
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Build Solution
+        run: dotnet build CustomizableHeroStats.sln --configuration Release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CustomizableHeroStats-DLL
+          path: bin/Release/netstandard2.1/CustomizableHeroStats.dll
