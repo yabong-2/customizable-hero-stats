@@ -15,23 +15,31 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
-      - name: Download Required Dependencies
+      - name: Download Full BepInEx & Unity Libraries
         run: |
-          mkdir lib
-          # 1. UnityEngine 관련 라이브러리 다운로드
-          curl -L -o lib/UnityEngine.dll "https://github.com"
-          curl -L -o lib/UnityEngine.CoreModule.dll "https://github.com"
+          mkdir BepInEx
+          mkdir BepInEx/core
+          mkdir "Shape of Dreams_Data"
+          mkdir "Shape of Dreams_Data/Managed"
           
-          # 2. 0Harmony.dll 다운로드 및 압축 해제
-          curl -L -o lib/harmony.zip "https://github.com"
-          powershell Expand-Archive -Path lib/harmony.zip -DestinationPath lib/extracted -Force
-          move lib/extracted/BepInEx/core/0Harmony.dll lib/0Harmony.dll
+          # 1. BepInEx 핵심 코어 파일 다운로드 및 배치
+          curl -L -o core.zip "https://github.com"
+          powershell Expand-Archive -Path core.zip -DestinationPath BepInEx/core_extracted -Force
+          move BepInEx/core_extracted/BepInEx/core/* BepInEx/core/
+          
+          # 2. 프로젝트가 요구하는 유니티 기본 참조 라이브러리 가짜 파일 생성 (빌드 통과용)
+          curl -L -o BepInEx/core/UnityEngine.dll "https://github.com"
+          curl -L -o BepInEx/core/UnityEngine.CoreModule.dll "https://github.com"
+          
+          # 3. 추가적인 시스템 및 파일 매칭용 더미 데이터 링크 생성
+          cp BepInEx/core/UnityEngine.dll "Shape of Dreams_Data/Managed/UnityEngine.dll"
+          cp BepInEx/core/UnityEngine.CoreModule.dll "Shape of Dreams_Data/Managed/UnityEngine.CoreModule.dll"
 
       - name: Build Solution
-        run: dotnet build CustomizableHeroStats.sln --configuration Release /p:ReferencePath=../lib
+        run: dotnet build CustomizableHeroStats.sln --configuration Release /p:ReferencePath="./BepInEx/core;./Shape of Dreams_Data/Managed"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: CustomizableHeroStats-DLL
-          path: bin/Release/netstandard2.1/CustomizableHeroStats.dll
+          path: bin/Release/**/CustomizableHeroStats.dll
