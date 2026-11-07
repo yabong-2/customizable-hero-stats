@@ -18,11 +18,13 @@ jobs:
       - name: Download Required Dependencies
         run: |
           mkdir lib
-          # 유니티 및 하모니 필수 참조 라이브러리 자동 다운로드
-          curl -L -o lib/UnityEngine.dll https://github.com
-          curl -L -o lib/UnityEngine.CoreModule.dll https://github.com
-          curl -L -o lib/0Harmony.dll https://github.com
-          powershell Expand-Archive -Path lib/0Harmony.zip -DestinationPath lib/extracted -Force
+          # 1. UnityEngine 관련 라이브러리 다운로드
+          curl -L -o lib/UnityEngine.dll "https://github.com"
+          curl -L -o lib/UnityEngine.CoreModule.dll "https://github.com"
+          
+          # 2. 0Harmony.dll 다운로드 및 압축 해제
+          curl -L -o lib/harmony.zip "https://github.com"
+          powershell Expand-Archive -Path lib/harmony.zip -DestinationPath lib/extracted -Force
           move lib/extracted/BepInEx/core/0Harmony.dll lib/0Harmony.dll
 
       - name: Build Solution
