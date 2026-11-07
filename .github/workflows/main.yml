@@ -15,8 +15,18 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
+      - name: Download Required Dependencies
+        run: |
+          mkdir lib
+          # 유니티 및 하모니 필수 참조 라이브러리 자동 다운로드
+          curl -L -o lib/UnityEngine.dll https://github.com
+          curl -L -o lib/UnityEngine.CoreModule.dll https://github.com
+          curl -L -o lib/0Harmony.dll https://github.com
+          powershell Expand-Archive -Path lib/0Harmony.zip -DestinationPath lib/extracted -Force
+          move lib/extracted/BepInEx/core/0Harmony.dll lib/0Harmony.dll
+
       - name: Build Solution
-        run: dotnet build CustomizableHeroStats.sln --configuration Release
+        run: dotnet build CustomizableHeroStats.sln --configuration Release /p:ReferencePath=../lib
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
